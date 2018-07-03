@@ -5,92 +5,64 @@ const walkDirsSync = require('./walk-dirs-sync');
 
 /**
  * 
- * @param {*} devSource - development folder where original node_modules with symlinks are
- * @param {*} destination - build folder where install alreday made node_moduled folder with symlinks still pointing to dev
+ * @param {*} sourceRoot - development folder where original node_modules with symlinks are
+ * @param {*} destinationRoot - build folder 
+ * @param {*} dirName - name of folder to copy from sourceRoot to destinationRoot
  * @param {*} opts {
  *                  quiet:true, do not show progress in console
  *                  all: false by default - do not include devDependencies, if true all dependencies will be copied
+ *                  noDevDependencies: do not copy devDependencies as per package.json
  *             }
  * @param {*} cb for gulp task
  */
-module.exports = function(devSource, destination, opts, cb){
+module.exports = function(sourceRoot, destinationRoot, dirName, opts, cb){
     opts = opts || {};
 
-    var devDependencies = require('./package.json').devDependencies;
+    var devDependencies;
+    if (opts.noDevDependencies) {
+        var pck = path.join(sourceRoot, './package.json'); pck = pck==='package.json' ? `./${pck}` : pck;
+        devDependencies = require(pck).devDependencies; 
+    }
     devDependencies = devDependencies || {};
 
-    if (!devSource.toLowerCase().endsWith('node_modules')) {devSource = path.join(devSource, 'node_modules');}
-
-    if (fs.existsSync(path.join(destination, 'node_modules'))) {
+    if (fs.existsSync(path.join(destinationRoot, dirName))) {
+        var msg=`destination folder already exists: '${path.join(destinationRoot, dirName)}' symlinks are unpredictable.`;
         console.log('\x1b[31m ERROR:');
-        console.error('node_modules can not exist in destination!', path.join(destination, 'node_modules') ); 
+        console.error(msg); 
         console.log('\x1b[0m');
-        throw (`node_modules can not exist in destination! '${destination}'`);
+        throw (msg);
     }
-    // NO! if (!destination.toLowerCase().endsWith('node_modules')) {destination = path.join(destination, 'node_modules');}
 
    
 
     var walkDirCallbacks = {
 
         condition: function(stat, lstat, dirItem){
-
-            // process only folders in dependencies do not include devDependencies
             if (stat.isDirectory()){
                 if (opts.all) return true;
                 var dirItemName = path.parse(dirItem).name;
-                if (devDependencies[dirItemName]) return false;
+                if (devDependencies[dirItemName]) return false;  // do not include devDependencies
                 return true;
             } 
             return false;
-
-            // return true;
-            // return stat.isDirectory();
-            // return stat.isDirectory() && lstat.isSymbolicLink(); // all dirs that are symlinks
         },
         onCondition: function(dirItem, _opts){
-    
-            // console.log(dirItem); return;
-    
-            /*  copying over existing symbolic link dirs damages original folder!
-                copy with dereference works only on fresh folder
-                when copying to folder with sym links deleted, dereference does not work !?
-                RIDICOLOUS WORKAROUND:
-                copy with derefenece to TEMP and then cpu to dest
-            */
-            
+                
             var dirItemName = path.parse(dirItem).name;
-
-            
-        
-            var source = dirItem;
-            var dest = path.join(destination, dirItem);
-
-            // var tempDest = path.join('TEMP', dirItemName);
-        
-            if(!opts.quiet) console.log(source, ' -> ', dest);
-
+            var _source = dirItem;
+            var dest = path.join(destinationRoot, dirItem);
+            if(!opts.quiet) console.log(_source, ' -> ', dest);
             try{
                 fs.removeSync(dest); // delete existing symbolic links, if not, the original folder will be damaged
             } catch(err){console.error('removeSync', err);}
             try{
-                fs.copySync(source, dest, {dereference: true}); // copy and dereference -break symbolic link
+                fs.copySync(_source, dest, {dereference: true}); // copy and dereference -break symbolic link
             } catch(err){console.error('copySync', err);}
-    
-            // return;
-            // // workaround:
-            // try{
-            //     fs.copySync(source, tempDest, {dereference: true}); // copy and dereference -break symbolic link
-            // } catch(err){console.error('copySync', err);}
-    
-            // try{
-            //     fs.copySync(tempDest, dest); // copy and dereference -break symbolic link
-            // } catch(err){console.error('copySync', err);}
-    
         }
     };
+    var root = path.join(sourceRoot, dirName);
 
-    var resp = walkDirsSync(devSource, walkDirCallbacks, {makeArr:false});
+    var resp = walkDirsSync(root, walkDirCallbacks, {makeArr:false});
 
     console.log('----------------------------------------------');
     console.log('processed', resp, 'items');

@@ -1,10 +1,19 @@
 'use strict';
 const gulp = require('gulp');
-const instalCopySymlink = require('./index');
+const copyWithSymlinks = require('./index');
 
 var dest = 'BUILD';
 
 function cb(){console.log('done.');}
 
 
-    instalCopySymlink('.', dest, {quiet: false}, cb);
+copyWithSymlinks(
+    './',                            // sourceRoot
+    dest,                           // destinationRoot
+    'node_modules',                 // dirName
+    {
+        quiet: false,               // print copied files to console
+        noDevDependencies: true     // do not copy devDependencies (form package.json)
+    }, 
+    cb                              // callback for gulp task
+);

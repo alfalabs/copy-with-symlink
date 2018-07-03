@@ -1,5 +1,5 @@
 {
-  "name": "gulp-install-with-symlink",
+  "name": "copy-with-symlinks",
   "version": "0.0.1",
   "description": "dereference symbolic links in node_modules for production release",
   "main": "index.js",
