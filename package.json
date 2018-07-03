@@ -1,0 +1,30 @@
+{
+  "name": "gulp-install-with-symlink",
+  "version": "0.0.1",
+  "description": "dereference symbolic links in node_modules for production release",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "' '"
+  },
+  "keywords": [
+    "gulp",
+    "symbolicLink",
+    "symlink",
+    "production"
+  ],
+  "author": "alfalabs.net",
+  "license": "ISC",
+  "dependencies": {
+    "alfa-ip": "file:../alfa-ip",
+    "alfa-uuid": "file:../alfa-uuid",
+    "elapsed-local": "file:../elapsed-local",
+    "fs-extra": "^6.0.1"
+  },
+  "devDependencies": {
+    "alfa-log": "file:../alfa-log"
+  }
+}
