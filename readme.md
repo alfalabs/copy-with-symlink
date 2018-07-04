@@ -1,5 +1,10 @@
 # copy-with-symlinks
 
+## deprecated
+
+## use newer [node-modules-prod](https://www.npmjs.com/package/node-modules-prod)
+---
+
 If you have **symbolic links** in your `node_modules`, 
 and run `npm instal` or `gulp-install` task, this will create new `node_modules` folder for production with broken symbolic links. (not tested on linux or darwin)
 
