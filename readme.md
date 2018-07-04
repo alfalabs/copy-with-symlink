@@ -2,7 +2,8 @@
 
 ## deprecated
 
-## use newer [node-modules-prod](https://www.npmjs.com/package/node-modules-prod)
+## use newer [node-modules-prod](https://www.npmjs.com/package/node-modules-prod) to handle symlinks and more.
+
 ---
 
 If you have **symbolic links** in your `node_modules`, 
